@@ -1,5 +1,5 @@
 /* eslint-disable max-statements */
-import { add, format } from "date-fns";
+import { add, format, differenceInYears } from "date-fns";
 import React from "react";
 import { Button } from "../../components/button";
 import RowContainer from "../../components/row-container";
@@ -39,21 +39,27 @@ const Detail = ({}) => {
   if (account.associatedMortgages.length) {
     mortgage = account.associatedMortgages[0];
   }
+  const currencyFormat = (amount) => {
+    return new Intl.NumberFormat("en-GB", {
+      style: "currency",
+      currency: "GBP",
+    }).format(amount)
+  }
+  const sincePurchaseValue = (account.recentValuation.amount) - (account.originalPurchasePrice);
+  const sincePurchasePercentage = sincePurchaseValue / (account.originalPurchasePrice) * 100;
+  const dateOfPurchase = format(new Date(account.originalPurchasePriceDate), "MMMM yyyy")
+  const noOfYearsSincePurchase = differenceInYears(new Date(), new Date('2017-09-03'));
+  const annualAppreciation = sincePurchasePercentage/noOfYearsSincePurchase;
 
   return (
     <Inset>
       <AccountSection>
         <AccountLabel>Estimated Value</AccountLabel>
         <AccountHeadline>
-          {new Intl.NumberFormat("en-GB", {
-            style: "currency",
-            currency: "GBP",
-          }).format(account.recentValuation.amount)}
+        {currencyFormat(account.recentValuation.amount)}
         </AccountHeadline>
         <AccountList>
-          <AccountListItem><InfoText>
-            {`Last updated ${format(lastUpdate, "do MMM yyyy")}`}
-          </InfoText></AccountListItem>
+          <AccountListItem><InfoText>{`Last updated ${format(lastUpdate, "do MMM yyyy")}`}</InfoText></AccountListItem>
           <AccountListItem><InfoText>
             {`Next update ${format(
               add(lastUpdate, { days: account.updateAfterDays }),
@@ -72,6 +78,22 @@ const Detail = ({}) => {
           </AccountList>
         </RowContainer>
       </AccountSection>
+      <AccountSection>
+        <AccountLabel>Valuation Changes</AccountLabel>
+        <RowContainer>
+          <AccountList>
+            <AccountListItem><InfoText>{`Purchased for ${currencyFormat(account.originalPurchasePrice)} in ${dateOfPurchase} `}</InfoText></AccountListItem>
+              <InfoText>{`Since purchase`}</InfoText>
+              <InfoText>{currencyFormat(sincePurchaseValue)}</InfoText>
+              <InfoText>{`(${sincePurchasePercentage})`}</InfoText>
+            <AccountListItem>
+              <InfoText>{`Annual Appreciation`}</InfoText>
+              <InfoText>{`${annualAppreciation}%`}</InfoText>
+            </AccountListItem>
+          </AccountList>
+        </RowContainer>
+      </AccountSection>
+
       {mortgage && (
         <AccountSection>
           <AccountLabel>Mortgage</AccountLabel>
@@ -81,10 +103,7 @@ const Detail = ({}) => {
           >
             <AccountList>
               <AccountListItem><InfoText>
-                {new Intl.NumberFormat("en-GB", {
-                  style: "currency",
-                  currency: "GBP",
-                }).format(
+                {currencyFormat(
                   Math.abs(account.associatedMortgages[0].currentBalance)
                 )}
               </InfoText></AccountListItem>
