@@ -77,6 +77,13 @@ npm run dev
 
 Open [http://localhost:3333](http://localhost:3333) with your browser to see the result.
 
+ Note: if yo get an error when you try run development server 
+Use node version 16 and 
+``` bash 
+rm -rf node_modules
+npm i
+npm run dev
+```
 You can start by looking at `modules/property-details/index`. The page auto-updates as you edit the file.
 
 ## Learn More
@@ -85,3 +92,4 @@ To learn more about Next.js, take a look at the following resources:
 
 - [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
 - [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+
