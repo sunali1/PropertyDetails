@@ -4,7 +4,7 @@ import React from "react";
 import { Button } from "../../components/button";
 import RowContainer from "../../components/row-container";
 import {
-  AccountHeadline, AccountLabel, AccountList, AccountListItem, AccountSection, InfoText, Inset
+  AccountHeadline, AccountLabel, AccountList, AccountListItem, AccountSection, InfoText, InfoValue,Inset, ValueChange, InfoValueWrapper, InfoPercent
 } from "./style";
 
 
@@ -50,6 +50,8 @@ const Detail = ({}) => {
   const dateOfPurchase = format(new Date(account.originalPurchasePriceDate), "MMMM yyyy")
   const noOfYearsSincePurchase = differenceInYears(new Date(), new Date('2017-09-03'));
   const annualAppreciation = sincePurchasePercentage/noOfYearsSincePurchase;
+  const positiveChange = sincePurchaseValue > 0 ? 'positive' : 'none'
+
 
   return (
     <Inset>
@@ -83,12 +85,17 @@ const Detail = ({}) => {
         <RowContainer>
           <AccountList>
             <AccountListItem><InfoText>{`Purchased for ${currencyFormat(account.originalPurchasePrice)} in ${dateOfPurchase} `}</InfoText></AccountListItem>
+            <ValueChange>
               <InfoText>{`Since purchase`}</InfoText>
-              <InfoText>{currencyFormat(sincePurchaseValue)}</InfoText>
-              <InfoText>{`(${sincePurchasePercentage})`}</InfoText>
-            <AccountListItem>
-              <InfoText>{`Annual Appreciation`}</InfoText>
-              <InfoText>{`${annualAppreciation}%`}</InfoText>
+              <InfoValueWrapper bg={positiveChange}>
+              <InfoValue color={positiveChange}>{currencyFormat(sincePurchaseValue)}</InfoValue>
+              <InfoValue color={positiveChange}>{`(${sincePurchasePercentage}%)`}</InfoValue>
+              </InfoValueWrapper>
+            </ValueChange>
+            <AccountListItem><InfoText>{`Annual Appreciation`}</InfoText>
+              <InfoValueWrapper bg={positiveChange}>
+              <InfoPercent color={positiveChange}>{`${annualAppreciation}%`}</InfoPercent>
+              </InfoValueWrapper>
             </AccountListItem>
           </AccountList>
         </RowContainer>
