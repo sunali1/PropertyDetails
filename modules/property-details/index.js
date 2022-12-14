@@ -1,128 +1,79 @@
-/* eslint-disable max-statements */
-import { add, format, differenceInYears } from "date-fns";
+
 import React from "react";
+import { useMemo } from "react";
+import {account} from './mock-data';
+import * as Constants from '../constants';
+import {calculateValuationChanges, formatCurrency, formatUpdateDate } from "./utils";
 import { Button } from "../../components/button";
-import RowContainer from "../../components/row-container";
-import {
-  AccountHeadline, AccountLabel, AccountList, AccountListItem, AccountSection, InfoText, InfoValue,Inset, ValueChange, InfoValueWrapper, InfoPercent
-} from "./style";
+import ListItem from "../../components/list-item";
+import Section from '../../components/section';
+import {InfoValue,Inset, InfoValueWrapper, InfoPercent} from "./style";
 
+const Detail = () => {
+  const {
+    lastUpdate, 
+    associatedMortgages, 
+    recentValuation, 
+    originalPurchasePrice, 
+    originalPurchasePriceDate, 
+    updateAfterDays, 
+    name, 
+    bankName,
+    postcode,
+  } = account;
 
-const account = {
-  uid: "65156cdc-5cfd-4b34-b626-49c83569f35e",
-  deleted: false,
-  dateCreated: "2020-12-03T08:55:33.421Z",
-  currency: "GBP",
-  name: "15 Temple Way",
-  bankName: "Residential",
-  type: "properties",
-  subType: "residential",
-  originalPurchasePrice: 250000,
-  originalPurchasePriceDate: "2017-09-03",
-  recentValuation: { amount: 310000, status: "good" },
-  associatedMortgages: [
-    {
-      name: "HSBC Repayment Mortgage",
-      uid: "fb463121-b51a-490d-9f19-d2ea76f05e25",
-      currentBalance: -175000,
-    },
-  ],
-  canBeManaged: false,
-  postcode: "BS1 2AA",
-  lastUpdate: "2020-12-01T08:55:33.421Z",
-  updateAfterDays: 30,
-};
-
-const Detail = ({}) => {
   let mortgage;
-  const lastUpdate = new Date(account.lastUpdate);
-  if (account.associatedMortgages.length) {
-    mortgage = account.associatedMortgages[0];
+  if (associatedMortgages?.length) {
+    mortgage = associatedMortgages[0];
   }
-  const currencyFormat = (amount) => {
-    return new Intl.NumberFormat("en-GB", {
-      style: "currency",
-      currency: "GBP",
-    }).format(amount)
-  }
-  const sincePurchaseValue = (account.recentValuation.amount) - (account.originalPurchasePrice);
-  const sincePurchasePercentage = sincePurchaseValue / (account.originalPurchasePrice) * 100;
-  const dateOfPurchase = format(new Date(account.originalPurchasePriceDate), "MMMM yyyy")
-  const noOfYearsSincePurchase = differenceInYears(new Date(), new Date('2017-09-03'));
-  const annualAppreciation = sincePurchasePercentage/noOfYearsSincePurchase;
-  const positiveChange = sincePurchaseValue > 0 ? 'positive' : 'none'
 
+  const valuationChanges = useMemo(
+    () => calculateValuationChanges(recentValuation, originalPurchasePrice, originalPurchasePriceDate),
+    [recentValuation, originalPurchasePrice, originalPurchasePriceDate]
+  );
+    
+  const { sincePurchaseValue, sincePurchasePercentage, dateOfPurchase, noOfYearsSincePurchase } = valuationChanges;
+  const annualAppreciation = sincePurchasePercentage/noOfYearsSincePurchase;
+  const positiveChange = sincePurchaseValue > 0 ? 'positive' : 'none';
 
   return (
     <Inset>
-      <AccountSection>
-        <AccountLabel>Estimated Value</AccountLabel>
-        <AccountHeadline>
-        {currencyFormat(account.recentValuation.amount)}
-        </AccountHeadline>
-        <AccountList>
-          <AccountListItem><InfoText>{`Last updated ${format(lastUpdate, "do MMM yyyy")}`}</InfoText></AccountListItem>
-          <AccountListItem><InfoText>
-            {`Next update ${format(
-              add(lastUpdate, { days: account.updateAfterDays }),
-              "do MMM yyyy"
-            )}`}
-          </InfoText></AccountListItem>
-        </AccountList>
-      </AccountSection>
-      <AccountSection>
-        <AccountLabel>Property details</AccountLabel>
-        <RowContainer>
-          <AccountList>
-            <AccountListItem><InfoText>{account.name}</InfoText></AccountListItem>
-            <AccountListItem><InfoText>{account.bankName}</InfoText></AccountListItem>
-            <AccountListItem><InfoText>{account.postcode}</InfoText></AccountListItem>
-          </AccountList>
-        </RowContainer>
-      </AccountSection>
-      <AccountSection>
-        <AccountLabel>Valuation Changes</AccountLabel>
-        <RowContainer>
-          <AccountList>
-            <AccountListItem><InfoText>{`Purchased for ${currencyFormat(account.originalPurchasePrice)} in ${dateOfPurchase} `}</InfoText></AccountListItem>
-            <ValueChange>
-              <InfoText>{`Since purchase`}</InfoText>
+      <Section label={Constants.ESTIMATED_VALUE} amount={formatCurrency(recentValuation?.amount)}>
+          <ListItem item={`Last updated ${formatUpdateDate(lastUpdate)}`} />
+          <ListItem item=
+            {`Next update ${formatUpdateDate(lastUpdate, updateAfterDays)}`} />
+      </Section>
+      <Section label={Constants.PROPERTY_DETAILS}>
+            <ListItem item={name} />
+            <ListItem item={bankName} />
+            <ListItem item={postcode} />
+      </Section>
+      <Section label={Constants.VALUATION_CHANGES}>
+            <ListItem item={`Purchased for ${formatCurrency(originalPurchasePrice)} in ${dateOfPurchase} `} />
+            <ListItem item={`Since purchase`}>
               <InfoValueWrapper bg={positiveChange}>
-              <InfoValue color={positiveChange}>{currencyFormat(sincePurchaseValue)}</InfoValue>
+              <InfoValue color={positiveChange}>{formatCurrency(sincePurchaseValue)}</InfoValue>
               <InfoValue color={positiveChange}>{`(${sincePurchasePercentage}%)`}</InfoValue>
               </InfoValueWrapper>
-            </ValueChange>
-            <AccountListItem><InfoText>{`Annual Appreciation`}</InfoText>
+            </ListItem>
+            <ListItem item={`Annual Appreciation`}>
               <InfoValueWrapper bg={positiveChange}>
               <InfoPercent color={positiveChange}>{`${annualAppreciation}%`}</InfoPercent>
               </InfoValueWrapper>
-            </AccountListItem>
-          </AccountList>
-        </RowContainer>
-      </AccountSection>
-
+            </ListItem>
+      </Section>
       {mortgage && (
-        <AccountSection>
-          <AccountLabel>Mortgage</AccountLabel>
-          <RowContainer
-            // This is a dummy action
-            onClick={() => alert("You have navigated to the mortgage page")}
-          >
-            <AccountList>
-              <AccountListItem><InfoText>
-                {currencyFormat(
-                  Math.abs(account.associatedMortgages[0].currentBalance)
-                )}
-              </InfoText></AccountListItem>
-              <AccountListItem><InfoText>{account.associatedMortgages[0].name}</InfoText></AccountListItem>
-            </AccountList>
-          </RowContainer>
-        </AccountSection>
+        <Section label={Constants.MORTGAGE}>
+              <ListItem item=
+                {formatCurrency(
+                  Math.abs(associatedMortgages[0].currentBalance)
+                )} />
+              <ListItem item={associatedMortgages[0].name} />
+        </Section>
       )}
       <Button
         // This is a dummy action
-        onClick={() => alert("You have navigated to the edit account page")}
-      >
+        onClick={() => alert("You have navigated to the edit account page")}>
         Edit account
       </Button>
     </Inset>
