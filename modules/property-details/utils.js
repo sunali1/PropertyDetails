@@ -28,7 +28,7 @@ export const formatUpdateDate = (lastUpdate, updateAfterDays) => {
     let formattedUpdate;
     const formattedLastUpdate = new Date(lastUpdate);
     formattedUpdate = format(formattedLastUpdate, "do MMM yyyy");
-    if(updateAfterDays){
+    if(updateAfterDays > 0){
       formattedUpdate = format(add(formattedLastUpdate, { days: updateAfterDays }), "do MMM yyyy")
       return formattedUpdate;
     };

@@ -1,5 +1,4 @@
 import Color from "color"
-//  colours used for the positive change in the image are #c2f7e1 and #006b57
 
 export const generateShades = (hex) => ({
   default: hex,
@@ -32,6 +31,7 @@ export const theme = {
     },
     green: {
       default: "#c2f7e1",
+      400: '#006b57',
     }
   },
   typography: {

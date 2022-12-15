@@ -4,7 +4,7 @@ export const InfoValue = styled.span`
   line-height: 1.6;
   :first-child {padding-right: 10px;}
   font-size: ${(props) => props.theme.typography.m.fontSize};
-  color: :${(props) => props.color == 'positive' ?  '#006b57' : props.theme.colors.neutral[600]};
+  color: ${(props) => props.color == 'positive' ?  props.theme.colors.green[400] : props.theme.colors.neutral[600]};
 `;
 
 export const Inset = styled.div`
@@ -15,7 +15,7 @@ export const InfoValueWrapper = styled.div`
 display: flex;
 justify-content: center;
   /* colours are used to indicate positive change */
-background-color:${(props) => props.bg == 'positive' ?  '#c2f7e1' : props.theme.colors.neutral};
+background-color:${(props) => props.bg == 'positive' ?  props.theme.colors.green.default : props.theme.colors.white.default};
 font-weight: bold;
 border-radius: ${(props) => props.theme.space.m};
 padding: ${(props) => (css` ${props.theme.space.xs} ${props.theme.space.l}`)};
@@ -36,5 +36,5 @@ line-height: 1.6;
 padding-right: 0;
 font-size: ${(props) => props.theme.typography.m.fontSize};
   /* colours are used to indicate positive change */
-color: :${(props) => props.color == 'positive' ?  '#006b57' : props.theme.colors.neutral[600]};
+color: ${(props) => props.color == 'positive' ?  props.theme.colors.green[400] : props.theme.colors.neutral[600]};
 `;
