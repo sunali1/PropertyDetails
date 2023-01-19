@@ -1,6 +1,6 @@
-# Moneyhub Tech Test - Property Details
+# Property Details
 
-This is a prototype of a new feature in Moneyhub
+This is a prototype
 Customers will now be able to receive automatic value updates on their properties
 and we would like to enhance the experience by summarizing their changes
 
