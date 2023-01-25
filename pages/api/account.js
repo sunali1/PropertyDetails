@@ -29,5 +29,6 @@ export default (req, res) => {
       updateAfterDays: 30,
     },
   });
+  res.end();
 }, 1000)
 };

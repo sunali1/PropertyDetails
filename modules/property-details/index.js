@@ -1,7 +1,5 @@
 
-import React from "react";
-import { useMemo } from "react";
-import {account} from './mock-data';
+import React, { useEffect, useState } from "react";
 import * as Constants from '../constants';
 import {calculateValuationChanges, formatCurrency, formatUpdateDate } from "./utils";
 import { Button } from "../../components/button";
@@ -10,6 +8,28 @@ import Section from '../../components/section';
 import {InfoValue,Inset, InfoValueWrapper, InfoPercent} from "./style";
 
 const Detail = () => {
+const [account, setAccount] = useState();
+const [isLoading, setLoading] = useState(false)
+
+  const getData = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/account');
+      const json = await response.json();
+      const data = json.account;
+      setAccount(data);
+      setLoading(false);
+    } catch (error) {
+      `Error fetching data ${error}`
+    }
+  };
+
+  useEffect(() => {
+    getData();
+  }, [])
+  if (isLoading) return <p>Loading...</p>
+  if (!account) return <p>No data</p>
+
   const {
     lastUpdate, 
     associatedMortgages, 
@@ -27,15 +47,12 @@ const Detail = () => {
     mortgage = associatedMortgages[0];
   }
 
-  const valuationChanges = useMemo(
-    () => calculateValuationChanges(recentValuation, originalPurchasePrice, originalPurchasePriceDate),
-    [recentValuation, originalPurchasePrice, originalPurchasePriceDate]
-  );
-    
+  const valuationChanges = calculateValuationChanges(recentValuation, originalPurchasePrice, originalPurchasePriceDate);
+  
   const { sincePurchaseValue, sincePurchasePercentage, dateOfPurchase, noOfYearsSincePurchase } = valuationChanges;
   const annualAppreciation = sincePurchasePercentage/noOfYearsSincePurchase;
   const positiveChange = sincePurchaseValue > 0 ? 'positive' : 'none';
-
+    
   return (
     <Inset>
       <Section label={Constants.ESTIMATED_VALUE} amount={formatCurrency(recentValuation?.amount)}>
@@ -52,7 +69,7 @@ const Detail = () => {
             <ListItem item={`Purchased for ${formatCurrency(originalPurchasePrice)} in ${dateOfPurchase} `} />
             <ListItem item={`Since purchase`}>
               <InfoValueWrapper bg={positiveChange}>
-              <InfoValue color={positiveChange}>{formatCurrency(sincePurchaseValue)}</InfoValue>
+<InfoValue color={positiveChange}>{formatCurrency(sincePurchaseValue)}</InfoValue>
               <InfoValue color={positiveChange}>{`(${sincePurchasePercentage}%)`}</InfoValue>
               </InfoValueWrapper>
             </ListItem>
