@@ -1,34 +1,26 @@
 
-import React, { useEffect, useState } from "react";
+import React from "react";
+import { useQuery} from "@tanstack/react-query";
 import * as Constants from '../constants';
-import {calculateValuationChanges, formatCurrency, formatUpdateDate } from "./utils";
 import { Button } from "../../components/button";
 import ListItem from "../../components/list-item";
 import Section from '../../components/section';
+import {calculateValuationChanges, formatCurrency, formatUpdateDate } from "./utils";
 import {InfoValue,Inset, InfoValueWrapper, InfoPercent} from "./style";
 
 const Detail = () => {
-const [account, setAccount] = useState();
-const [isLoading, setLoading] = useState(false)
-
-  const getData = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch('/api/account');
-      const json = await response.json();
-      const data = json.account;
-      setAccount(data);
-      setLoading(false);
-    } catch (error) {
-      `Error fetching data ${error}`
-    }
+  
+  const fetchAccountData = async () => {
+    const apiRes = await fetch('/api/accoun');
+    if(!apiRes.ok){throw new Error(`fetchAccountData was not OK `)};
+// no need to await fetch expects a Promise 
+    return apiRes.json();
   };
 
-  useEffect(() => {
-    getData();
-  }, [])
-  if (isLoading) return <p>Loading...</p>
-  if (!account) return <p>No data</p>
+  const {data, isLoading, error }  = useQuery(["account"], fetchAccountData);
+  if(error){ return <div>😞 Fetchin Data was not ok </div>}
+  if (isLoading) return <p> 🌀</p>
+  
 
   const {
     lastUpdate, 
@@ -40,7 +32,7 @@ const [isLoading, setLoading] = useState(false)
     name, 
     bankName,
     postcode,
-  } = account;
+  } = data.account;
 
   let mortgage;
   if (associatedMortgages?.length) {
